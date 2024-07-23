@@ -33,15 +33,12 @@ class web_crawler:
             for i in items:
                 href = i.get_attribute('href')
                 text = i.text
-
                 listAux.append(text)
                 listAuxLink.append(href)
-
             sleep(5)
         except:
             print("Erro ao Assessar " + site)
 
-        
         return listAux, listAuxLink
 
     # Executa limpeza e tratamento de dados
@@ -49,10 +46,35 @@ class web_crawler:
         pass
 
     # Organiza e classifica as informações
-    def organizador(self, items):
-        for i in items:
-            links = [elem.get_attribute('href') for elem in i]
-            print(links)
+    def organizador(self, listNames, listLinks):
+        listNamesAux = []
+        listLinksAux = []
+        listKeys = []
+
+        for i in listNames:
+            for j in i:
+                listNamesAux.append(j)
+
+        for i in listLinks:
+            for j in i:
+                listLinksAux.append(j)
+
+        for i in range(0, len(listLinksAux)):
+            keys = str(listLinksAux[i]) + str(listNamesAux[i])
+            listKeys.append(keys)
+
+        dfLinks = pd.DataFrame()
+        dfLinks['Nome'] = listNamesAux
+        dfLinks['Link'] = listLinksAux
+        dfLinks['Chave'] = listKeys
+        
+        dfLinks = dfLinks.loc[dfLinks['Nome'] != ""]
+        dfLinks = dfLinks.loc[dfLinks['Link'] != ""]
+
+        # Locar apenas noticias onde a vriavel seja maior que 20 caracteres
+        dfLinks = dfLinks[dfLinks['Nome'].str.len() > 40]
+        dfLinks = dfLinks.drop_duplicates(subset=['Link'])
+        dfLinks.to_excel(r'C:\Users\gabri\OneDrive\Projetos\Extração de Noticias\data.xlsx')
 
     # Faz a execução completa do código
     def start(self):
@@ -66,10 +88,8 @@ class web_crawler:
             site, link = starter.scraping(key, value, navegador)
             listLinks.append(link)
             listSites.append(site)
-        
-        print(len(listLinks))
-        print(len(listSites))
-        #starter.organizador(items)
+    
+        starter.organizador(listSites, listLinks)
 
 # instanciar o webdriver
 
