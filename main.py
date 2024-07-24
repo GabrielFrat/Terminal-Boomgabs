@@ -2,6 +2,7 @@ try:
     import bs4
     import pandas as pd
     import cfscrape
+    import re
     import requests
     from time import sleep
     from selenium import webdriver
@@ -15,7 +16,9 @@ dictSites = {'InfoMoney Politica': 'https://www.infomoney.com.br/politica/',
              'CNN Politica': 'https://www.cnnbrasil.com.br/politica/',
              'CNN Economia': 'https://www.cnnbrasil.com.br/economia/', 
              'Estadão Política': 'https://www.estadao.com.br/politica/',
-             'Estadão Economia': 'https://www.estadao.com.br/economia/'}
+             'Estadão Economia': 'https://www.estadao.com.br/economia/', 
+             'O Globo Economia': 'https://www.oglobo.com.br/economia/', 
+             'O Globo Politica': 'https://www.oglobo.com.br/economia/'}
 
 class web_crawler:
     # inicializa o projeto
@@ -74,6 +77,27 @@ class web_crawler:
         # Locar apenas noticias onde a vriavel seja maior que 20 caracteres
         dfLinks = dfLinks[dfLinks['Nome'].str.len() > 40]
         dfLinks = dfLinks.drop_duplicates(subset=['Link'])
+        
+        listLinksAux = dfLinks['Link'].tolist()
+        listSite = []
+        listCategoria = []
+        for i in listLinksAux:
+            val = str(i).split('/')
+            try:
+                listSite.append(val[2])
+            except:
+                listSite.append("None")
+
+        for i in listLinksAux:
+            try:
+                val = str(i).split('/')
+                listCategoria.append(val[3])
+            except:
+                listCategoria.append("None")
+
+
+        dfLinks['Site'] = listSite
+        dfLinks['Categoria'] = listCategoria
         dfLinks.to_excel(r'C:\Users\gabri\OneDrive\Projetos\Extração de Noticias\data.xlsx')
 
     # Faz a execução completa do código
